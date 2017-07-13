@@ -46,37 +46,37 @@ public class RxGsonRequest<T> extends Request<T> {
         private Object mTag;
 
 
-        public Builder setClass(Class<T> aClass) {
+        public Builder<T> setClass(Class<T> aClass) {
             mClass = aClass;
             return this;
         }
 
-        public Builder setHeader(Map<String, String> header) {
+        public Builder<T> setHeader(Map<String, String> header) {
             mHeader = header;
             return this;
         }
 
-        public Builder setParameter(Map<String, String> params) {
+        public Builder<T> setParameter(Map<String, String> params) {
             mParameter = params;
             return this;
         }
 
-        public Builder setUrl(String url) {
+        public Builder<T> setUrl(String url) {
             mUrl = url;
             return this;
         }
 
-        public Builder setMethod(int method) {
+        public Builder<T> setMethod(int method) {
             mMethod = method;
             return this;
         }
 
-        public Builder setGson(Gson gson) {
+        public Builder<T> setGson(Gson gson) {
             mGson = gson;
             return this;
         }
 
-        public Builder setTag(Object tag) {
+        public Builder<T> setTag(Object tag) {
             mTag = tag;
             return this;
         }
@@ -89,7 +89,7 @@ public class RxGsonRequest<T> extends Request<T> {
                     e.printStackTrace();
                 }
             }
-            RxGsonRequest<T> request = new RxGsonRequest<>(mMethod, mUrl, mClass);
+            RxGsonRequest<T> request = new RxGsonRequest<T>(mMethod, mUrl, mClass);
             if (mGson == null) {
                 request.mGson = new Gson();
             }else{

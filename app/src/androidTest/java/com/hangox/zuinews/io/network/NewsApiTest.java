@@ -7,22 +7,17 @@ import android.support.test.runner.AndroidJUnit4;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.hangox.xlog.XLog;
-import com.hangox.zuinews.AppConfig;
-import com.hangox.zuinews.io.bean.ChannelListBean;
+import com.hangox.zuinews.io.bean.ChannelApiBean;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.Map;
 
 import io.reactivex.Observer;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Created With Android Studio
@@ -37,15 +32,15 @@ public class NewsApiTest {
 
     @Test
     public void requestNewsChannel() throws Exception {
-        NewsApi.requestNewsChannel(null).subscribe(new Observer<ChannelListBean>() {
+        NewsApi.requestNewsChannel(null).subscribe(new Observer<ChannelApiBean>() {
             @Override
             public void onSubscribe(@NonNull Disposable d) {
 
             }
 
             @Override
-            public void onNext(@NonNull ChannelListBean channelListBean) {
-                XLog.v(channelListBean);
+            public void onNext(@NonNull ChannelApiBean channelApiBean) {
+                XLog.v(channelApiBean);
                 assertEquals("1","2");
             }
 
@@ -66,15 +61,6 @@ public class NewsApiTest {
     public void setUp() throws Exception {
         Context appContext = InstrumentationRegistry.getTargetContext();
         mQueue = Volley.newRequestQueue(appContext);
-    }
-
-    @Test
-    public void getDefaultParameter() throws Exception {
-        Map<String,String> map = NewsApi.getDefaultParameter();
-        Assert.assertEquals(map.get("showapi_appid"), AppConfig.SHOW_API_ID);
-        assertEquals(map.get("showapi_sign_method"),"md5");
-        assertEquals(map.get("showapi_res_gzip"),"0");
-        assertTrue(map.containsKey("showapi_timestamp"));
     }
 
 }
