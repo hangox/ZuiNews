@@ -14,12 +14,14 @@ import com.hangox.zuinews.io.entry.ChannelEntity;
 /**
  * @author hangox
  */
-public class MainActivity extends MyActivity <ActivityMainBinding>{
+public class MainActivity extends MyActivity<ActivityMainBinding> {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Db.session().queryBuilder(ChannelEntity.class).rx().list();
+        Db.session().queryBuilder(ChannelEntity.class)
+                .rx()
+                .list();
     }
 
     @Override
@@ -33,7 +35,7 @@ public class MainActivity extends MyActivity <ActivityMainBinding>{
     }
 
 
-    class NewsListAdapter extends FragmentPagerAdapter{
+    class NewsListAdapter extends FragmentPagerAdapter {
 
         public NewsListAdapter(FragmentManager fm) {
             super(fm);
