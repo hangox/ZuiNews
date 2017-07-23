@@ -1,11 +1,10 @@
 package com.hangox.zuinews.io;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 
 import com.hangox.zuinews.io.entry.DaoMaster;
 import com.hangox.zuinews.io.entry.DaoSession;
-
-import org.greenrobot.greendao.database.Database;
 
 /**
  * Created With Android Studio
@@ -22,7 +21,7 @@ public class Db  {
 
     public static final void init(Context context){
         DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(context, "news-db");
-        Database db = helper.getWritableDb();
+        SQLiteDatabase db = helper.getWritableDatabase();
         mDaoSession = new DaoMaster(db).newSession();
     }
 

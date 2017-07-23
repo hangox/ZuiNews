@@ -1,5 +1,7 @@
 package com.hangox.zuinews.io.bean;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Created With Android Studio
  * User hangox
@@ -12,8 +14,12 @@ public class ChannelBean {
      * name : 国内焦点
      */
 
+
+    @SerializedName("channelId")
     private String channelId;
+    @SerializedName("name")
     private String name;
+
 
     public String getChannelId() {
         return channelId;
@@ -29,5 +35,14 @@ public class ChannelBean {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("ChannelBean{");
+        sb.append("channelId='").append(channelId).append('\'');
+        sb.append(", name='").append(name).append('\'');
+        sb.append('}');
+        return sb.toString();
     }
 }
