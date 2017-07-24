@@ -109,6 +109,7 @@ public class RxGsonRequest<T> extends Request<T> {
         }
     }
 
+    @DebugLog
     protected RxGsonRequest(int method, String url, Class<T> clazz) {
         super(method, url, null);
         mClazz = clazz;

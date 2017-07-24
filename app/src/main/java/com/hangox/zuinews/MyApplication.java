@@ -21,14 +21,7 @@ public class MyApplication extends Application {
         super.onCreate();
         Db.init(this);
         Stetho.initializeWithDefaults(this);
-
         RequestManager.I.init(this);
-
-
         Timber.plant(new Timber.DebugTree());
-
-
-
-
     }
 }
