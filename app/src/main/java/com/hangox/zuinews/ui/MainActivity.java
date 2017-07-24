@@ -78,7 +78,7 @@ public class MainActivity extends MyActivity<ActivityMainBinding> {
 
         @Override
         public int getCount() {
-            return mTitles.size();
+            return 1;
         }
     }
 

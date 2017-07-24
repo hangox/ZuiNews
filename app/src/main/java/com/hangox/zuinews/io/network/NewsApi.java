@@ -79,7 +79,7 @@ public class NewsApi {
 
         return new RxGsonRequest.Builder<NewsApiBean>()
                 .setClass(NewsApiBean.class)
-                .setMethod(Request.Method.POST)
+                .setMethod(Request.Method.GET)
                 .setParameter(parameter)
                 .setHeader(header)
                 .setUrl("http://route.showapi.com/109-35")

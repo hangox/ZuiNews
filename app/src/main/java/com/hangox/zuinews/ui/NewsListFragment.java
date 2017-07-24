@@ -105,9 +105,8 @@ public class NewsListFragment extends MyFragment<FraNewListBinding> {
     }
 
     private void requestFirstPage() {
-        mNewsData.requestNewsList(mChannelId, PAGE_SIZE, this)
-                .doOnNext(pagebeanBean -> mCurrentPage = pagebeanBean.getCurrentPage())
-                .doOnNext(createCheckLastPage())
+        mNewsData.requestNewsList(mChannelId, 1, this)
+                .doOnNext(createUpdatePageInfo())
                 .observeOn(Schedulers.io())
                 .map(pagebeanBean -> {
                     Timber.d("request channelId %s,response %s",mChannelId,pagebeanBean);
@@ -143,25 +142,18 @@ public class NewsListFragment extends MyFragment<FraNewListBinding> {
     }
 
     @NonNull
-    private Consumer<NewsApiBean.ShowapiResBodyBean.PagebeanBean> createCheckLastPage() {
-        return pagebeanBean -> setIsLastPage(pagebeanBean.getCurrentPage() == pagebeanBean.getAllNum());
+    private Consumer<NewsApiBean.ShowapiResBodyBean.PagebeanBean> createUpdatePageInfo() {
+        return pagebeanBean -> {
+            mCurrentPage = pagebeanBean.getCurrentPage();
+            setIsLastPage(pagebeanBean.getCurrentPage() == pagebeanBean.getAllNum());
+        };
     }
 
     private void requestNextPage() {
-//        Observable.create(e -> {
-//            if(!mNewsEntities.isEmpty()){
-//                NewsEntity entity = mNewsEntities.get(0);
-//                NewsEntityDao dao = Db.session().getNewsEntityDao();
-//                list = dao.queryBuilder()
-//                        .where(NewsEntityDao.Properties.Id.eq(entity.getId()))
-//                        .orderDesc(NewsEntityDao.Properties.Date)
-//                        .list();
-//
-//            }
-//        });
 
         mNewsData.requestNewsList(mChannelId, mCurrentPage + 1,this)
-                .doOnNext(createCheckLastPage())
+                .doOnNext(createUpdatePageInfo())
+                .doOnNext(pagebeanBean -> mCurrentPage = pagebeanBean.getCurrentPage())
                 .observeOn(Schedulers.io())
                 .map(pagebeanBean -> {
                     List<NewsApiBean.ShowapiResBodyBean.PagebeanBean.ContentlistBean> list =
@@ -172,6 +164,9 @@ public class NewsListFragment extends MyFragment<FraNewListBinding> {
                         Db.session().insertOrReplace(entity);
                         entities.add(entity);
                     }
+                    if(!entities.isEmpty()){
+                        entities.remove(0);
+                    }
                     return entities;
                 })
                 .observeOn(AndroidSchedulers.mainThread())
@@ -179,6 +174,12 @@ public class NewsListFragment extends MyFragment<FraNewListBinding> {
                     int lastPosition = mNewsEntities.size();
                     mNewsEntities.addAll(newsEntities);
                     mBinding.recyclerView.getAdapter().notifyItemInserted(lastPosition);
+                    mBinding.recyclerView.unlockMoreCall();
+                },throwable -> {
+                    mBinding.recyclerView.getMoreDelegete().setViewState(MoreDelegate.ViewState.ERROR);
+                    mBinding.recyclerView.unlockMoreCall();
+                },() -> {
+
                 });
 
     }
