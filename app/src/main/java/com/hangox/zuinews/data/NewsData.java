@@ -2,18 +2,21 @@ package com.hangox.zuinews.data;
 
 import android.content.Context;
 
+import com.android.volley.Request;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.hangox.xlog.XLog;
 import com.hangox.zuinews.error.ShowApiError;
 import com.hangox.zuinews.io.Db;
 import com.hangox.zuinews.io.bean.ChannelBean;
-import com.hangox.zuinews.io.bean.NewsApiBean;
+import com.hangox.zuinews.io.bean.NewsPageBean;
 import com.hangox.zuinews.io.entry.ChannelEntity;
 import com.hangox.zuinews.io.entry.ChannelEntityDao;
 import com.hangox.zuinews.io.entry.NewsEntity;
 import com.hangox.zuinews.io.entry.NewsEntityDao;
 import com.hangox.zuinews.io.network.NewsApi;
+import com.hangox.zuinews.io.network.RequestManager;
+import com.hangox.zuinews.io.network.RxGsonRequest;
 
 import org.greenrobot.essentials.io.IoUtils;
 
@@ -110,8 +113,29 @@ public class NewsData {
     }
 
 
-    public Observable<NewsApiBean.ShowapiResBodyBean.PagebeanBean> requestNewsList(String channelId, int page, Object tag) {
-        return NewsApi.requestNewsList(channelId, page, tag);
+    public Observable<NewsPageBean> requestNewsList(String channelId, int page, int pageSize, boolean isNeedHtml, Object tag) {
+        return NewsApi.requestNewsList(channelId, page, pageSize, isNeedHtml, tag);
+    }
 
+
+    public Observable<NewsPageBean> requestNewsList(String channelId, int page, Object tag) {
+        return NewsApi.requestNewsList(channelId, page, 20, true, tag);
+    }
+
+
+    /**
+     * @param link
+     * @param tag
+     * @return
+     */
+    public Observable<String> requestNewsDetail(String link, Object tag) {
+        return new RxGsonRequest.Builder<String>()
+                .setTag(tag)
+                .setClass(String.class)
+                .setMethod(Request.Method.GET)
+                .setUrl(link)
+                .build()
+                .bindToQueue(RequestManager.Q())
+                .rx();
     }
 }

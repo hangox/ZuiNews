@@ -6,6 +6,7 @@ import com.android.volley.Request;
 import com.hangox.zuinews.error.ShowApiError;
 import com.hangox.zuinews.io.bean.ChannelApiBean;
 import com.hangox.zuinews.io.bean.NewsApiBean;
+import com.hangox.zuinews.io.bean.NewsPageBean;
 import com.hangox.zuinews.io.bean.ShowApiBean;
 
 import java.util.Map;
@@ -57,6 +58,8 @@ public class NewsApi {
     }
 
 
+
+
     /**
      * 获取新闻信息
      * @param channelId
@@ -64,16 +67,26 @@ public class NewsApi {
      * @param tag
      * @return
      */
-    public static Observable<NewsApiBean.ShowapiResBodyBean.PagebeanBean> requestNewsList(String channelId, int page, Object tag){
+    public static Observable<NewsPageBean> requestNewsList(String channelId,
+                                                           int page, int pageSize, boolean isNeedHtml,Object tag){
         Map<String,String> parameter = new ParameterFactory()
                 .add("channelId",channelId)
                 .add("page",page)
                 .add("needContent",0)
-                .add("needHtml",0)
+                .add("needHtml", isNeedHtml ? 1 : 0)
                 .add("needAllList",0)
-                .add("maxResult",20)
+                .add("maxResult",pageSize)
                 .create();
+        return createNewsListRequest(tag, parameter);
+    }
 
+    /**
+     * 创建请求News
+     * @param tag
+     * @param parameter
+     * @return
+     */
+    private static Observable<NewsPageBean> createNewsListRequest(Object tag, Map<String, String> parameter) {
         Map<String,String> header = new ArrayMap<>();
         header.put("enctype","application/x-www-form-urlencoded");
 
@@ -92,6 +105,15 @@ public class NewsApi {
     }
 
 
+
+    public static Observable<NewsPageBean> requestNewsById(String newsId,Object tag){
+        Map<String,String> parameter = new ParameterFactory()
+                .add("id",newsId)
+                .add("needHtml",1)
+                .create();
+
+        return createNewsListRequest(tag,parameter);
+    }
 
 
 }
