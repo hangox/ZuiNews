@@ -1,15 +1,16 @@
 package com.hangox.zuinews.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.hangox.databinding.recycleview.BindingRecyclerAdapter;
 import com.hangox.databinding.recycleview.BindingViewHolder;
 import com.hangox.more.recycerview.MoreDelegate;
 import com.hangox.more.recycerview.MoreDelegateImp;
@@ -19,13 +20,19 @@ import com.hangox.zuinews.databinding.FraNewListBinding;
 import com.hangox.zuinews.databinding.ItemNewsBinding;
 import com.hangox.zuinews.error.ShowApiError;
 import com.hangox.zuinews.io.Db;
-import com.hangox.zuinews.io.bean.NewsApiBean;
+import com.hangox.zuinews.io.bean.NewsContentBean;
+import com.hangox.zuinews.io.bean.NewsPageBean;
 import com.hangox.zuinews.io.entry.NewsEntity;
+import com.hangox.zuinews.io.entry.NewsEntityDao;
+import com.hangox.zuinews.io.network.NetworksUtils;
+
+import org.greenrobot.greendao.query.QueryBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import hugo.weaving.DebugLog;
+import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
@@ -52,14 +59,15 @@ public class NewsListFragment extends MyFragment<FraNewListBinding> {
 
     private int mCurrentPage = 1;
     private boolean mIsLastPage;
+    private boolean isNetworkUp;
 
 
     @DebugLog
-    public static NewsListFragment newInstance(String channelName,String channelId) {
+    public static NewsListFragment newInstance(String channelName, String channelId) {
         Bundle bundle = new Bundle();
         bundle.putString("channelId", channelId);
-        bundle.putString("channelName",channelName);
-        Timber.v("set channelId %s ,channelName %s ",channelId,channelName);
+        bundle.putString("channelName", channelName);
+        Timber.v("set channelId %s ,channelName %s ", channelId, channelName);
         NewsListFragment fragment = new NewsListFragment();
         fragment.setArguments(bundle);
         return fragment;
@@ -72,7 +80,7 @@ public class NewsListFragment extends MyFragment<FraNewListBinding> {
 
         Bundle args = getArguments();
         mChannelId = args.getString("channelId", "");
-        mChannelName = args.getString("channelName","");
+        mChannelName = args.getString("channelName", "");
     }
 
     @Override
@@ -85,102 +93,133 @@ public class NewsListFragment extends MyFragment<FraNewListBinding> {
             recyclerView.lockMoreCall();
             requestNextPage();
         });
+
+
         mBinding.recyclerView.setMoreDelegate(new MoreDelegateImp(getContext()));
-        DividerItemDecoration itemDecoration = new DividerItemDecoration(getContext(),DividerItemDecoration.VERTICAL);
+        DividerItemDecoration itemDecoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
+        itemDecoration.setDrawable(getResources().getDrawable(R.drawable.ic_divide_line));
         mBinding.recyclerView.addItemDecoration(itemDecoration);
         mBinding.swipeRefreshLayout.setOnRefreshListener(this::requestFirstPage);
+        mBinding.swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorAccent));
 
-//        mNewsData.getNewsList(mChannelId, PAGE_SIZE)
-//                .subscribe(newsEntities -> {
-//                    if (!newsEntities.isEmpty()) {
-//                        mNewsEntities.addAll(newsEntities);
-//                        mBinding.recyclerView.getAdapter().notifyDataSetChanged();
-//                        mBinding.recyclerView.setVisibility(View.VISIBLE);
-//                        mBinding.waiting.setVisibility(View.GONE);
-//                    }
-//                    requestFirstPage();
-//                }, Throwable::printStackTrace);
-
+        isNetworkUp = NetworksUtils.isNetworkup(getContext());
         requestFirstPage();
     }
 
     private void requestFirstPage() {
-        mNewsData.requestNewsList(mChannelId, 1, this)
-                .doOnNext(createUpdatePageInfo())
-                .observeOn(Schedulers.io())
-                .map(pagebeanBean -> {
-                    Timber.d("request channelId %s,response %s",mChannelId,pagebeanBean);
-                    List<NewsApiBean.ShowapiResBodyBean.PagebeanBean.ContentlistBean> list =
-                            pagebeanBean.getContentlist();
-                    List<NewsEntity> entities = new ArrayList<>();
-                    for (NewsApiBean.ShowapiResBodyBean.PagebeanBean.ContentlistBean bean : list) {
-                        NewsEntity entity = new NewsEntity(bean);
-                        Db.session().insertOrReplace(entity);
-                        entities.add(entity);
-                    }
-                    return entities;
-                })
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(newsEntities -> {
-                    mNewsEntities.clear();
-                    mNewsEntities.addAll(newsEntities);
-                    if (mBinding.swipeRefreshLayout.isRefreshing()) {
-                        mBinding.swipeRefreshLayout.setRefreshing(false);
-                    }
-                    mBinding.recyclerView.getAdapter().notifyDataSetChanged();
-                    mBinding.waiting.setVisibility(View.GONE);
-                    mBinding.swipeRefreshLayout.setVisibility(View.VISIBLE);
-                }, throwable -> {
-                    if(throwable instanceof ShowApiError){
-                        ShowApiError showApiError = (ShowApiError) throwable;
-                        Snackbar.make(mBinding.constraintLayout,showApiError.getMessage(), Snackbar.LENGTH_LONG)
-                                .show();
-                    }
-                }, () -> {
+        Observable<List<NewsEntity>> observable = null;
+        if (isNetworkUp) {
+            observable = mNewsData.requestNewsList(mChannelId, 1, this)
+                    .doOnNext(createUpdatePageInfo())
+                    .observeOn(Schedulers.io())
+                    .map(pagebeanBean -> {
+                        Timber.d("request channelId %s,response %s", mChannelId, pagebeanBean);
+                        List<NewsContentBean> list =
+                                pagebeanBean.getContentlist();
+                        List<NewsEntity> entities = new ArrayList<>();
+                        for (NewsContentBean bean : list) {
+                            NewsEntity entity = new NewsEntity(bean);
+                            Db.session().insertOrReplace(entity);
+                            entities.add(entity);
+                        }
+                        return entities;
+                    })
+                    .observeOn(AndroidSchedulers.mainThread());
+        } else {
+            observable = Db.session()
+                    .getNewsEntityDao()
+                    .queryBuilder()
+                    .where(NewsEntityDao.Properties.ChannelId.eq(mChannelId))
+                    .orderDesc(NewsEntityDao.Properties.Date)
+                    .rx()
+                    .list()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnNext(newsEntities -> setIsLastPage(newsEntities.isEmpty()));
+        }
 
-                });
+        observable.subscribe(newsEntities -> {
+            mNewsEntities.clear();
+            mNewsEntities.addAll(newsEntities);
+            if (mBinding.swipeRefreshLayout.isRefreshing()) {
+                mBinding.swipeRefreshLayout.setRefreshing(false);
+            }
+            mBinding.recyclerView.getAdapter().notifyDataSetChanged();
+            mBinding.waiting.setVisibility(View.GONE);
+            mBinding.swipeRefreshLayout.setVisibility(View.VISIBLE);
+        }, throwable -> {
+            if (throwable instanceof ShowApiError) {
+                ShowApiError showApiError = (ShowApiError) throwable;
+                Snackbar.make(mBinding.constraintLayout, showApiError.getMessage(), Snackbar.LENGTH_LONG)
+                        .show();
+            }
+        }, () -> {
+
+        });
     }
 
     @NonNull
-    private Consumer<NewsApiBean.ShowapiResBodyBean.PagebeanBean> createUpdatePageInfo() {
+    private Consumer<NewsPageBean> createUpdatePageInfo() {
         return pagebeanBean -> {
             mCurrentPage = pagebeanBean.getCurrentPage();
-            setIsLastPage(pagebeanBean.getCurrentPage() == pagebeanBean.getAllNum());
+            setIsLastPage(pagebeanBean.getCurrentPage() == pagebeanBean.getAllPages());
         };
     }
 
     private void requestNextPage() {
 
-        mNewsData.requestNewsList(mChannelId, mCurrentPage + 1,this)
-                .doOnNext(createUpdatePageInfo())
-                .doOnNext(pagebeanBean -> mCurrentPage = pagebeanBean.getCurrentPage())
-                .observeOn(Schedulers.io())
-                .map(pagebeanBean -> {
-                    List<NewsApiBean.ShowapiResBodyBean.PagebeanBean.ContentlistBean> list =
-                            pagebeanBean.getContentlist();
-                    List<NewsEntity> entities = new ArrayList<>();
-                    for (NewsApiBean.ShowapiResBodyBean.PagebeanBean.ContentlistBean bean : list) {
-                        NewsEntity entity = new NewsEntity(bean);
-                        Db.session().insertOrReplace(entity);
-                        entities.add(entity);
-                    }
-                    if(!entities.isEmpty()){
-                        entities.remove(0);
-                    }
-                    return entities;
-                })
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(newsEntities -> {
-                    int lastPosition = mNewsEntities.size();
-                    mNewsEntities.addAll(newsEntities);
-                    mBinding.recyclerView.getAdapter().notifyItemInserted(lastPosition);
-                    mBinding.recyclerView.unlockMoreCall();
-                },throwable -> {
-                    mBinding.recyclerView.getMoreDelegete().setViewState(MoreDelegate.ViewState.ERROR);
-                    mBinding.recyclerView.unlockMoreCall();
-                },() -> {
+        Observable<List<NewsEntity>> observable = null;
+        if (isNetworkUp) {
+            observable = mNewsData.requestNewsList(mChannelId, mCurrentPage + 1, this)
+                    .doOnNext(createUpdatePageInfo())
+                    .doOnNext(pagebeanBean -> mCurrentPage = pagebeanBean.getCurrentPage())
+                    .observeOn(Schedulers.io())
+                    .map(pagebeanBean -> {
+                        List<NewsContentBean> list =
+                                pagebeanBean.getContentlist();
+                        List<NewsEntity> entities = new ArrayList<>();
+                        for (NewsContentBean bean : list) {
+                            NewsEntity entity = new NewsEntity(bean);
+                            Db.session().insertOrReplace(entity);
+                            entities.add(entity);
+                        }
+                        if (!entities.isEmpty()) {
+                            entities.remove(0);
+                        }
+                        return entities;
+                    })
+                    .observeOn(AndroidSchedulers.mainThread());
+        } else {
+            QueryBuilder<NewsEntity> queryBuilder = Db.session().getNewsEntityDao().queryBuilder()
+                    .where(NewsEntityDao.Properties.ChannelId.eq(mChannelId))
+                    .orderDesc(NewsEntityDao.Properties.Date);
+            if (!mNewsEntities.isEmpty()) {
+                queryBuilder.where(NewsEntityDao.Properties.ChannelId.lt(mNewsEntities.get(mNewsEntities.size() - 1).getDate()));
+            }
+            observable = queryBuilder.limit(PAGE_SIZE)
+                    .rx()
+                    .list()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnNext(newsEntities -> setIsLastPage(newsEntities.isEmpty()));
 
-                });
+        }
+
+
+        observable.doOnSubscribe(disposable -> {
+            mBinding.recyclerView.getMoreDelegete().setViewState(MoreDelegate.ViewState.LOADING);
+        }).subscribe(newsEntities -> {
+            int lastPosition = mNewsEntities.size();
+            if (!newsEntities.isEmpty()) {
+                mNewsEntities.addAll(newsEntities);
+                mBinding.recyclerView.getAdapter().notifyItemInserted(lastPosition);
+            }
+            if (!mIsLastPage) {
+                mBinding.recyclerView.unlockMoreCall();
+            }
+        }, throwable -> {
+            mBinding.recyclerView.getMoreDelegete().setViewState(MoreDelegate.ViewState.ERROR);
+            mBinding.recyclerView.unlockMoreCall();
+        }, () -> {
+        });
 
     }
 
@@ -218,11 +257,13 @@ public class NewsListFragment extends MyFragment<FraNewListBinding> {
     }
 
 
-    class NewsAdapter extends RecyclerView.Adapter<NewsViewHolder> {
+    class NewsAdapter extends BindingRecyclerAdapter<NewsViewHolder> {
 
         @Override
         public NewsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new NewsViewHolder(R.layout.item_news, parent);
+            NewsViewHolder viewHolder = new NewsViewHolder(R.layout.item_news, parent);
+            viewHolder.setOnViewHolderClickListener(this);
+            return viewHolder;
         }
 
         @Override
@@ -234,6 +275,13 @@ public class NewsListFragment extends MyFragment<FraNewListBinding> {
         @Override
         public int getItemCount() {
             return mNewsEntities.size();
+        }
+
+        @Override
+        public void onRootViewClick(View rootView, int index) {
+            Intent intent = new Intent(getContext(),NewDetailActivity.class);
+            intent.putExtra("news",mNewsEntities.get(index));
+            startActivity(intent);
         }
     }
 }

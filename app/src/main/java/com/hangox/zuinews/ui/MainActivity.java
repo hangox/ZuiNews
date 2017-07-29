@@ -2,6 +2,7 @@ package com.hangox.zuinews.ui;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -10,6 +11,7 @@ import com.hangox.zuinews.R;
 import com.hangox.zuinews.data.NewsData;
 import com.hangox.zuinews.databinding.ActivityMainBinding;
 import com.hangox.zuinews.io.entry.ChannelEntity;
+import com.hangox.zuinews.io.network.NetworksUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,14 +28,21 @@ public class MainActivity extends MyActivity<ActivityMainBinding> {
     List<ChannelEntity> mChannelEntities;
 
     NewsData mNewsData;
+    private NewsListAdapter mAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mNewsData = new NewsData();
         mNewsData.getChannelList(this)
-                .subscribe(this::setUpChannel,Throwable::printStackTrace);
-        mNewsData.requestUpdateChannel();
+                .subscribe(this::setUpChannel, Throwable::printStackTrace);
+        if (NetworksUtils.isNetworkup(this)) {
+            mNewsData.requestUpdateChannel();
+        } else {
+            Snackbar.make(mDataBinding.constraintLayout, R.string.no_connection_show_cache,Snackbar.LENGTH_INDEFINITE)
+                    .setAction(android.R.string.ok, v -> {})
+                    .show();
+        }
 
     }
 
@@ -43,8 +52,9 @@ public class MainActivity extends MyActivity<ActivityMainBinding> {
             mTitles.add(channelEntity.getName());
         }
         mChannelEntities = channelEntities;
-        mDataBinding.viewPager.setAdapter(new NewsListAdapter(getSupportFragmentManager()));
+        mDataBinding.viewPager.setAdapter(mAdapter = new NewsListAdapter(getSupportFragmentManager()));
         mDataBinding.tabs.setupWithViewPager(mDataBinding.viewPager);
+        mDataBinding.viewPager.setOffscreenPageLimit(mAdapter.getCount());
     }
 
 
@@ -73,7 +83,7 @@ public class MainActivity extends MyActivity<ActivityMainBinding> {
         @Override
         public Fragment getItem(int position) {
             ChannelEntity entity = mChannelEntities.get(position);
-            return NewsListFragment.newInstance(entity.getName(),entity.getChannelId());
+            return NewsListFragment.newInstance(entity.getName(), entity.getChannelId());
         }
 
         @Override

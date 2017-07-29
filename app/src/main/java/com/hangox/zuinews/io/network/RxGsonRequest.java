@@ -143,8 +143,13 @@ public class RxGsonRequest<T> extends Request<T> {
         try {
             String json = new String(
                     response.data, HttpHeaderParser.parseCharset(response.headers));
-            return Response.success(
-                    mGson.fromJson(json, mClazz), HttpHeaderParser.parseCacheHeaders(response));
+            if(String.class.equals(mClazz)){
+                return Response.success((T) json,HttpHeaderParser.parseCacheHeaders(response));
+            }else {
+                return Response.success(
+                        mGson.fromJson(json, mClazz), HttpHeaderParser.parseCacheHeaders(response));
+            }
+
         } catch (UnsupportedEncodingException e) {
             return Response.error(new ParseError(e));
         } catch (JsonSyntaxException e) {

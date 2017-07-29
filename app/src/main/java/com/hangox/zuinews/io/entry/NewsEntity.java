@@ -3,7 +3,7 @@ package com.hangox.zuinews.io.entry;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.hangox.zuinews.io.bean.NewsApiBean;
+import com.hangox.zuinews.io.bean.NewsContentBean;
 
 import org.greenrobot.greendao.DaoException;
 import org.greenrobot.greendao.annotation.Entity;
@@ -47,15 +47,20 @@ public class NewsEntity implements Parcelable {
 
     private String source;
 
+
     private String imageUrl;
 
+    /**
+     * html 内容
+     */
+    private String contentHtml;
 
     @Generated(hash = 2121778047)
     public NewsEntity() {
     }
 
 
-    public NewsEntity(NewsApiBean.ShowapiResBodyBean.PagebeanBean.ContentlistBean bean) {
+    public NewsEntity(NewsContentBean bean) {
         this.id = bean.getId();
         this.title = bean.getTitle();
         this.date = bean.getPubDate();
@@ -69,25 +74,10 @@ public class NewsEntity implements Parcelable {
         this.source = bean.getSource();
         this.hasAll =bean.isHasAll();
         this.link = bean.getLink();
+        this.contentHtml = bean.getHtml();
 
 
     }
-
-    @Generated(hash = 803526106)
-    public NewsEntity(String id, String title, String date, String channelId,
-                      String desc, String link, boolean hasAll, String source,
-                      String imageUrl) {
-        this.id = id;
-        this.title = title;
-        this.date = date;
-        this.channelId = channelId;
-        this.desc = desc;
-        this.link = link;
-        this.hasAll = hasAll;
-        this.source = source;
-        this.imageUrl = imageUrl;
-    }
-
 
     /**
      * Used to resolve relations
@@ -271,6 +261,31 @@ public class NewsEntity implements Parcelable {
     }
 
 
+    public String getContentHtml() {
+        return this.contentHtml;
+    }
+
+
+    public void setContentHtml(String contentHtml) {
+        this.contentHtml = contentHtml;
+    }
+
+
+    @Generated(hash = 443335874)
+    public NewsEntity(String id, String title, String date, String channelId, String desc,
+            String link, boolean hasAll, String source, String imageUrl, String contentHtml) {
+        this.id = id;
+        this.title = title;
+        this.date = date;
+        this.channelId = channelId;
+        this.desc = desc;
+        this.link = link;
+        this.hasAll = hasAll;
+        this.source = source;
+        this.imageUrl = imageUrl;
+        this.contentHtml = contentHtml;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -287,8 +302,26 @@ public class NewsEntity implements Parcelable {
         dest.writeByte(this.hasAll ? (byte) 1 : (byte) 0);
         dest.writeString(this.source);
         dest.writeString(this.imageUrl);
+        dest.writeString(this.contentHtml);
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("NewsEntity{");
+        sb.append("id='").append(id).append('\'');
+        sb.append(", title='").append(title).append('\'');
+        sb.append(", date='").append(date).append('\'');
+        sb.append(", channelId='").append(channelId).append('\'');
+        sb.append(", desc='").append(desc).append('\'');
+        sb.append(", link='").append(link).append('\'');
+        sb.append(", hasAll=").append(hasAll);
+        sb.append(", source='").append(source).append('\'');
+        sb.append(", imageUrl='").append(imageUrl).append('\'');
+        sb.append(", contentHtml='").append(contentHtml).append('\'');
+        sb.append(", myDao=").append(myDao);
+        sb.append('}');
+        return sb.toString();
+    }
 
     /** called by internal mechanisms, do not call yourself. */
     @Generated(hash = 1204874507)
@@ -308,6 +341,7 @@ public class NewsEntity implements Parcelable {
         this.hasAll = in.readByte() != 0;
         this.source = in.readString();
         this.imageUrl = in.readString();
+        this.contentHtml = in.readString();
     }
 
     public static final Creator<NewsEntity> CREATOR = new Creator<NewsEntity>() {
