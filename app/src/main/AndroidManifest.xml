@@ -22,8 +22,11 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".ui.NewDetailActivity"
+        <activity
+            android:name=".ui.NewDetailActivity"
             android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <activity android:name=".ui.CommentListActivity">
         </activity>
     </application>
 
