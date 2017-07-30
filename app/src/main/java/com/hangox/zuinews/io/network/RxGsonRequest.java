@@ -1,5 +1,7 @@
 package com.hangox.zuinews.io.network;
 
+import android.util.ArrayMap;
+
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;
@@ -28,12 +30,13 @@ import io.reactivex.subjects.Subject;
 
 public class RxGsonRequest<T> extends Request<T> {
 
-    private Subject<T> mSubject = PublishSubject.create();
+    protected Subject<T> mSubject = PublishSubject.create();
 
-    private Gson mGson = new Gson();
-    private Class<T> mClazz;
-    private Map<String, String> mHeaders;
-    private Map<String, String> mParams;
+    protected Gson mGson = new Gson();
+    protected Class<T> mClazz;
+    protected Map<String, String> mHeaders;
+    protected Map<String, String> mParams;
+
 
 
     public static class Builder<T> {
@@ -95,6 +98,10 @@ public class RxGsonRequest<T> extends Request<T> {
             }else{
                 request.mGson = mGson;
             }
+            if(mHeader == null){
+                mHeader = new ArrayMap<>();
+            }
+            mHeader.put("Accept","application/json, text/javascript, */*; q=0.01");
             request.mParams = mParameter;
             request.mHeaders = mHeader;
             request.setTag(mTag);
@@ -102,7 +109,8 @@ public class RxGsonRequest<T> extends Request<T> {
         }
     }
 
-    private RxGsonRequest(int method, String url, Class<T> clazz) {
+    @DebugLog
+    protected RxGsonRequest(int method, String url, Class<T> clazz) {
         super(method, url, null);
         mClazz = clazz;
     }
@@ -120,7 +128,10 @@ public class RxGsonRequest<T> extends Request<T> {
     @Override
     protected Map<String, String> getParams() throws AuthFailureError {
         if(mParams != null && !mParams.isEmpty()){
-            mParams.putAll(super.getParams());
+            Map<String, String> sParams = super.getParams();
+            if(sParams != null && !sParams.isEmpty()) {
+                mParams.putAll(super.getParams());
+            }
             return mParams;
         }
         return super.getParams();
@@ -132,8 +143,13 @@ public class RxGsonRequest<T> extends Request<T> {
         try {
             String json = new String(
                     response.data, HttpHeaderParser.parseCharset(response.headers));
-            return Response.success(
-                    mGson.fromJson(json, mClazz), HttpHeaderParser.parseCacheHeaders(response));
+            if(String.class.equals(mClazz)){
+                return Response.success((T) json,HttpHeaderParser.parseCacheHeaders(response));
+            }else {
+                return Response.success(
+                        mGson.fromJson(json, mClazz), HttpHeaderParser.parseCacheHeaders(response));
+            }
+
         } catch (UnsupportedEncodingException e) {
             return Response.error(new ParseError(e));
         } catch (JsonSyntaxException e) {
@@ -142,18 +158,20 @@ public class RxGsonRequest<T> extends Request<T> {
     }
 
 
+
     @Override
     public void deliverError(VolleyError error) {
         mSubject.onError(error);
+        mSubject.onComplete();
     }
 
+    @DebugLog
     @Override
     protected void deliverResponse(T response) {
         mSubject.onNext(response);
         mSubject.onComplete();
     }
 
-    @DebugLog
     public RxGsonRequest<T> bindToQueue(RequestQueue queue){
         queue.add(this);
         return this;
@@ -163,5 +181,16 @@ public class RxGsonRequest<T> extends Request<T> {
 
     public Observable<T> rx() {
         return mSubject;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("RxGsonRequest{");
+        sb.append("mClazz=").append(mClazz);
+        sb.append(", mHeaders=").append(mHeaders);
+        sb.append(", url=").append(getUrl());
+        sb.append(", mParams=").append(mParams);
+        sb.append('}');
+        return sb.toString();
     }
 }

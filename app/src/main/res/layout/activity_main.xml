@@ -3,6 +3,7 @@
     >
 
     <android.support.design.widget.CoordinatorLayout
+        android:id="@+id/constraintLayout"
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
@@ -21,12 +22,11 @@
                 app:titleTextColor="@android:color/white"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                app:layout_scrollFlags="scroll|enterAlways">
-            </android.support.v7.widget.Toolbar>
+                app:layout_scrollFlags="scroll|enterAlways"/>
 
             <android.support.design.widget.TabLayout
                 android:id="@+id/tabs"
-                app:tabTextColor="#AAAAAA"
+                app:tabTextColor="#EEE"
                 app:tabSelectedTextColor="@color/colorAccent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -1,14 +1,17 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.jakewharton.hugo'
 apply plugin: 'org.greenrobot.greendao'
+apply plugin: 'me.tatarka.retrolambda'
 
 
 android {
+    useLibrary 'org.apache.http.legacy'
+
     compileSdkVersion 25
     buildToolsVersion "25.0.3"
     defaultConfig {
         applicationId "com.hangox.zuinews"
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
@@ -21,8 +24,17 @@ android {
         }
     }
 
-    dataBinding{
+    dataBinding {
         enabled true;
+    }
+
+    packagingOptions {
+        exclude 'META-INF/rxjava.properties'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
@@ -32,16 +44,29 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile project(":DaoCore")
+    //    debugCompile 'com.amitshekhar.android:debug-db:1.0.1'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.0.0-RC1'
+
+//    compile 'org.greenrobot:greendao:3.2.2'
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.hangox:dbcontext:1.0'
     compile 'com.hangox:dbrecycleview:1.0'
     compile 'com.hangox:xLog:1.0'
     compile 'com.android.support:recyclerview-v7:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    testCompile 'junit:junit:4.12'
     compile 'com.android.volley:volley:1.0.0'
     compile 'com.android.support:design:25.3.1'
     compile 'com.google.code.gson:gson:2.7'
     compile 'io.reactivex.rxjava2:rxjava:2.1.1'
-//    compile 'org.greenrobot:greendao:3.2.2'
+    compile 'org.greenrobot:essentials:3.0.0-RC1'
+    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    compile 'com.hangox:more-recyclerview:1.0.1'
+    compile 'com.github.bumptech.glide:glide:4.0.0-RC1'
+    compile 'com.android.support:support-v4:25.3.1'
+    compile 'com.facebook.stetho:stetho:1.5.0'
+    compile 'com.jakewharton.timber:timber:4.5.1'
+    compile 'com.squareup.okhttp3:okhttp:3.8.1'
+    compile 'com.facebook.stetho:stetho-okhttp3:1.5.0'
+    testCompile 'junit:junit:4.12'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.0.0-RC1'
 }

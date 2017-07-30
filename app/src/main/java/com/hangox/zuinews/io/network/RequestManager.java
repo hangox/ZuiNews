@@ -4,6 +4,9 @@ import android.content.Context;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
+import com.facebook.stetho.okhttp3.StethoInterceptor;
+
+import java.util.Arrays;
 
 /**
  * Created With Android Studio
@@ -22,7 +25,8 @@ public class RequestManager {
     private RequestQueue mRequestQueue;
 
     public void init(Context context){
-        mRequestQueue = Volley.newRequestQueue(context);
+//        RequestQueue queue = Volley.newRequestQueue(this, new StethoVolleyStack());
+        mRequestQueue = Volley.newRequestQueue(context,new OkHttp3Stack(Arrays.asList(new StethoInterceptor())));
     }
 
     public RequestQueue getRequestQueue() {
