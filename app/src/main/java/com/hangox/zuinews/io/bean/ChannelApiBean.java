@@ -11,7 +11,7 @@ import java.util.List;
  * Time 上午9:35
  */
 
-public class ChannelApiBean extends ShowApiBean<ChannelApiBean.ShowapiResBodyBean>{
+public class ChannelApiBean extends ShowApiBean<ChannelApiBean.ShowapiResBodyBean> {
 
     /**
      * showapi_res_code : 0
@@ -20,7 +20,7 @@ public class ChannelApiBean extends ShowApiBean<ChannelApiBean.ShowapiResBodyBea
      */
 
 
-    public static class ShowapiResBodyBean {
+    public static class ShowapiResBodyBean extends ShowApiBody {
         /**
          * totalNum : 44
          * ret_code : 0
@@ -29,10 +29,10 @@ public class ChannelApiBean extends ShowApiBean<ChannelApiBean.ShowapiResBodyBea
 
         @SerializedName("totalNum")
         private int totalNum;
-        @SerializedName("ret_code")
-        private int retCode;
+
+
         @SerializedName("channelList")
-        private List<ChannelListBean> channelList;
+        private List<ChannelBean> channelList;
 
         public int getTotalNum() {
             return totalNum;
@@ -42,48 +42,25 @@ public class ChannelApiBean extends ShowApiBean<ChannelApiBean.ShowapiResBodyBea
             this.totalNum = totalNum;
         }
 
-        public int getRetCode() {
-            return retCode;
-        }
 
-        public void setRetCode(int retCode) {
-            this.retCode = retCode;
-        }
-
-        public List<ChannelListBean> getChannelList() {
+        public List<ChannelBean> getChannelList() {
             return channelList;
         }
 
-        public void setChannelList(List<ChannelListBean> channelList) {
+        public void setChannelList(List<ChannelBean> channelList) {
             this.channelList = channelList;
         }
 
-        public static class ChannelListBean {
-            /**
-             * channelId : 5572a108b3cdc86cf39001cd
-             * name : 国内焦点
-             */
-
-            @SerializedName("channelId")
-            private String channelId;
-            @SerializedName("name")
-            private String name;
-
-            public String getChannelId() {
-                return channelId;
-            }
-
-            public void setChannelId(String channelId) {
-                this.channelId = channelId;
-            }
-
-            public String getName() {
-                return name;
-            }
-
-            public void setName(String name) {
-                this.name = name;
-            }
+        @Override
+        public String toString() {
+            final StringBuilder sb = new StringBuilder("ShowapiResBodyBean{");
+            sb.append("totalNum=").append(totalNum);
+            sb.append(", channelList=").append(channelList);
+            sb.append('}');
+            return sb.toString();
         }
     }
+
+
+
 }

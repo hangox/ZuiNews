@@ -1,5 +1,7 @@
 package com.hangox.zuinews.io.network;
 
+import android.content.Context;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Iterator;
@@ -28,5 +30,18 @@ public class NetworksUtils {
             builder.deleteCharAt(builder.length() - 1);
         }
         return builder.toString();
+    }
+
+    /**
+     * 网络是否可以用
+     * @param context
+     * @return
+     */
+    public static boolean isNetworkup(Context context) {
+//        ConnectivityManager cm =
+//                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+//        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+//        return networkInfo != null && networkInfo.isConnectedOrConnecting();
+        return false;
     }
 }

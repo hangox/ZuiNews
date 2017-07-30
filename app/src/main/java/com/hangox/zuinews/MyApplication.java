@@ -2,8 +2,11 @@ package com.hangox.zuinews;
 
 import android.app.Application;
 
+import com.facebook.stetho.Stetho;
 import com.hangox.zuinews.io.Db;
 import com.hangox.zuinews.io.network.RequestManager;
+
+import timber.log.Timber;
 
 /**
  * Created With Android Studio
@@ -16,7 +19,9 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        RequestManager.I.init(this);
         Db.init(this);
+        Stetho.initializeWithDefaults(this);
+        RequestManager.I.init(this);
+        Timber.plant(new Timber.DebugTree());
     }
 }
