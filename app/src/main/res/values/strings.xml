@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">ZuiNews</string>
     <string name="no_connection_show_cache">无网络连接，将为你显示缓存</string>
+    <string name="read_more">更多评论</string>
 </resources>
