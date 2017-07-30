@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -60,6 +61,7 @@ public class NewsListFragment extends MyFragment<FraNewListBinding> {
     private int mCurrentPage = 1;
     private boolean mIsLastPage;
     private boolean isNetworkUp;
+    private NewsAdapter mAdapter;
 
 
     @DebugLog
@@ -88,7 +90,7 @@ public class NewsListFragment extends MyFragment<FraNewListBinding> {
         super.onViewCreated(view, savedInstanceState);
 
         //setupView
-        mBinding.recyclerView.setAdapter(new NewsAdapter());
+        mBinding.recyclerView.setAdapter(mAdapter = new NewsAdapter());
         mBinding.recyclerView.setMoreListener(recyclerView -> {
             recyclerView.lockMoreCall();
             requestNextPage();
@@ -99,10 +101,11 @@ public class NewsListFragment extends MyFragment<FraNewListBinding> {
         DividerItemDecoration itemDecoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
         itemDecoration.setDrawable(getResources().getDrawable(R.drawable.ic_divide_line));
         mBinding.recyclerView.addItemDecoration(itemDecoration);
+        mBinding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL,false));
         mBinding.swipeRefreshLayout.setOnRefreshListener(this::requestFirstPage);
         mBinding.swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorAccent));
 
-        isNetworkUp = NetworksUtils.isNetworkup(getContext());
+        isNetworkUp = NetworksUtils.isNetworkUp(getContext());
         requestFirstPage();
     }
 
@@ -143,9 +146,9 @@ public class NewsListFragment extends MyFragment<FraNewListBinding> {
             if (mBinding.swipeRefreshLayout.isRefreshing()) {
                 mBinding.swipeRefreshLayout.setRefreshing(false);
             }
-            mBinding.recyclerView.getAdapter().notifyDataSetChanged();
             mBinding.waiting.setVisibility(View.GONE);
             mBinding.swipeRefreshLayout.setVisibility(View.VISIBLE);
+            mAdapter.notifyDataSetChanged();
         }, throwable -> {
             if (throwable instanceof ShowApiError) {
                 ShowApiError showApiError = (ShowApiError) throwable;
@@ -210,7 +213,7 @@ public class NewsListFragment extends MyFragment<FraNewListBinding> {
             int lastPosition = mNewsEntities.size();
             if (!newsEntities.isEmpty()) {
                 mNewsEntities.addAll(newsEntities);
-                mBinding.recyclerView.getAdapter().notifyItemInserted(lastPosition);
+                mAdapter.notifyItemInserted(lastPosition);
             }
             if (!mIsLastPage) {
                 mBinding.recyclerView.unlockMoreCall();
