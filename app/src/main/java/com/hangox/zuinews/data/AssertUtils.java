@@ -16,7 +16,7 @@ import java.io.InputStream;
 
 public class AssertUtils {
     public static String getStringFromAssert(Context context,String fileName) throws IOException {
-        InputStream stream = context.getResources().getAssets().open("fileName");
+        InputStream stream = context.getResources().getAssets().open(fileName);
         return new String(IoUtils.readAllBytes(stream));
     }
 }

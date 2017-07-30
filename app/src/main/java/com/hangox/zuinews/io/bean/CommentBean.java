@@ -1,5 +1,8 @@
 package com.hangox.zuinews.io.bean;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created With Android Studio
  * User HangoX
@@ -7,7 +10,7 @@ package com.hangox.zuinews.io.bean;
  * Time 下午5:54
  */
 
-public class CommentBean {
+public class CommentBean implements Parcelable {
     private String userName;
     private String comment;
     private String date;
@@ -73,4 +76,38 @@ public class CommentBean {
         return this;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.userName);
+        dest.writeString(this.comment);
+        dest.writeString(this.date);
+        dest.writeString(this.imageUrl);
+        dest.writeLong(this.time);
+    }
+
+    public CommentBean() {
+    }
+
+    protected CommentBean(Parcel in) {
+        this.userName = in.readString();
+        this.comment = in.readString();
+        this.date = in.readString();
+        this.imageUrl = in.readString();
+        this.time = in.readLong();
+    }
+
+    public static final Parcelable.Creator<CommentBean> CREATOR = new Parcelable.Creator<CommentBean>() {
+        public CommentBean createFromParcel(Parcel source) {
+            return new CommentBean(source);
+        }
+
+        public CommentBean[] newArray(int size) {
+            return new CommentBean[size];
+        }
+    };
 }

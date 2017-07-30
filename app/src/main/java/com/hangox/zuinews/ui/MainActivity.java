@@ -36,7 +36,7 @@ public class MainActivity extends MyActivity<ActivityMainBinding> {
         mNewsData = new NewsData();
         mNewsData.getChannelList(this)
                 .subscribe(this::setUpChannel, Throwable::printStackTrace);
-        if (NetworksUtils.isNetworkup(this)) {
+        if (NetworksUtils.isNetworkUp(this)) {
             mNewsData.requestUpdateChannel();
         } else {
             Snackbar.make(mDataBinding.constraintLayout, R.string.no_connection_show_cache,Snackbar.LENGTH_INDEFINITE)

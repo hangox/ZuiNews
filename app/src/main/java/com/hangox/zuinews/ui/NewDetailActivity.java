@@ -1,5 +1,7 @@
 package com.hangox.zuinews.ui;
 
+import android.content.Intent;
+import android.databinding.DataBindingUtil;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Rect;
@@ -13,14 +15,20 @@ import android.text.TextUtils;
 import android.view.ViewTreeObserver;
 import android.view.Window;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.hangox.databinding.context.BindingActivity;
 import com.hangox.xlog.XLog;
 import com.hangox.zuinews.R;
-import com.hangox.zuinews.data.NewsData;
+import com.hangox.zuinews.data.AssertUtils;
 import com.hangox.zuinews.databinding.ActivityNewDetailBinding;
+import com.hangox.zuinews.databinding.ItemCommentBinding;
 import com.hangox.zuinews.io.Db;
+import com.hangox.zuinews.io.bean.CommentBean;
 import com.hangox.zuinews.io.entry.NewsEntity;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 import io.reactivex.Observable;
@@ -31,15 +39,12 @@ import io.reactivex.schedulers.Schedulers;
 public class NewDetailActivity extends BindingActivity<ActivityNewDetailBinding> {
 
     private NewsEntity mNewsEntity;
-    private NewsData mNewsData;
     private float mContentWidth;
-    private String mExpandedTitle;
-    private String mCollapsedTitle;
+    private ArrayList<CommentBean> mCommentList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mNewsData = new NewsData();
         mNewsEntity = getIntent().getParcelableExtra("news");
         mNewsEntity.__setDaoSession(Db.session());
         XLog.v(mNewsEntity);
@@ -57,8 +62,6 @@ public class NewDetailActivity extends BindingActivity<ActivityNewDetailBinding>
 
         getWindow().setStatusBarColor(Color.TRANSPARENT);
 
-        mCollapsedTitle = " ";
-        mExpandedTitle = mNewsEntity.getTitle();
         mDataBinding.appBar.addOnOffsetChangedListener((appBarLayout, verticalOffset) -> {
             int titleBarHeight = getStateBarHeight();
             if (Math.abs(verticalOffset) == (mDataBinding.appBar.getHeight() - mDataBinding.toolbar.getHeight() - Math.abs(titleBarHeight))) {
@@ -67,6 +70,33 @@ public class NewDetailActivity extends BindingActivity<ActivityNewDetailBinding>
                 mDataBinding.toolbar.setTitle(" ");
             }
         });
+
+        setUpComment();
+
+        mDataBinding.readMore.setOnClickListener(view -> startCommentList());
+    }
+
+    private void startCommentList() {
+        Intent intent = new Intent(this,CommentListActivity.class);
+        intent.putParcelableArrayListExtra("comments",mCommentList);
+        startActivity(intent);
+    }
+
+    private void setUpComment() {
+        try {
+            mCommentList = new Gson().fromJson(AssertUtils.getStringFromAssert(this,"comments.json"),
+                    new TypeToken<ArrayList<CommentBean>>(){}.getType());
+            if(!mCommentList.isEmpty() ){
+                int size = mCommentList.size() > 2 ? 3: mCommentList.size();
+                for (int i = 0; i < size; i++) {
+                    ItemCommentBinding binding = DataBindingUtil.inflate(getLayoutInflater(),
+                            R.layout.item_comment,mDataBinding.commentContainer,true);
+                    binding.setComment(mCommentList.get(i));
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private int getStateBarHeight() {

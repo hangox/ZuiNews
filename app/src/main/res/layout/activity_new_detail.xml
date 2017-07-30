@@ -47,39 +47,39 @@
                     android:layout_height="140dp"
                     android:layout_gravity="bottom"
                     android:background="@drawable/bg_title_shadow"
+                    android:paddingBottom="16dp"
                     android:paddingLeft="16dp"
                     android:paddingRight="16dp"
-                    android:paddingBottom="16dp"
                     app:layout_collapseMode="none">
 
 
                     <TextView
                         android:id="@+id/source"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:layout_alignParentBottom="true"
                         android:textColor="@android:color/white"
-                        tools:text="新浪新闻"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        tools:text="新浪新闻"/>
 
                     <TextView
                         android:id="@+id/time"
-                        android:layout_alignTop="@+id/source"
-                        android:layout_toEndOf="@+id/source"
-                        android:layout_marginStart="16dp"
-                        tools:text="2017-1-2 11:11:12"
-                        android:textColor="@android:color/white"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content"
+                        android:layout_alignTop="@+id/source"
+                        android:layout_marginStart="16dp"
+                        android:layout_toEndOf="@+id/source"
+                        android:textColor="@android:color/white"
+                        tools:text="2017-1-2 11:11:12"/>
 
                     <TextView
                         android:id="@+id/title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:layout_above="@+id/source"
+                        android:layout_marginBottom="8dp"
                         android:textColor="@android:color/white"
                         android:textSize="18sp"
-                        android:layout_marginBottom="8dp"
-                        tools:text="揭秘首批“八一勋章”获得者：有何过人之处?"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        tools:text="揭秘首批“八一勋章”获得者：有何过人之处?"/>
 
                 </RelativeLayout>
 
@@ -104,17 +104,44 @@
             android:fitsSystemWindows="true"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-            <TextView
-                android:id="@+id/content"
+
+            <LinearLayout
+                android:id="@+id/contentContainer"
+                android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingBottom="16dp"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
-                android:paddingTop="16dp"
-                android:textColor="#333"
-                android:textSize="16sp"
-                tools:text="等哈客户端卡夫卡哈迪斯开发库书法考级哈身份卡还是分开哈发卡号考几分会打开发哈康师傅"/>
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/content"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="16dp"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+                    android:paddingTop="16dp"
+                    android:textColor="#333"
+                    android:textSize="16sp"
+                    tools:text="等哈客户端卡夫卡哈=迪斯开发库书法考级哈身份卡还是分开哈发卡号考几分会打开发哈康师傅"/>
+
+
+                <LinearLayout
+                    android:id="@+id/commentContainer"
+                    android:orientation="vertical"
+                    android:divider="@drawable/ic_divide_line"
+                    android:showDividers="middle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/readMore"
+                    android:text="@string/read_more"
+                    android:background="@drawable/bg_new_item"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
 
         </android.support.v4.widget.NestedScrollView>
     </android.support.design.widget.CoordinatorLayout>

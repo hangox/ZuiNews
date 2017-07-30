@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<layout
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+        <variable
+            name="comment"
+            type="com.hangox.zuinews.io.bean.CommentBean"/>
+        <import type="android.text.TextUtils"/>
+        <import type="android.view.View"/>
+    </data>
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/userName"
+            android:text="@{comment.userName}"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="8dp"
+            android:textSize="14sp"
+            android:typeface="serif"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@+id/date"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="手机用户298102012"/>
+
+        <TextView
+            android:id="@+id/date"
+            android:text="@{comment.date}"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="8dp"
+            android:textSize="12sp"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="2017-07-30 16:02:20"/>
+
+        <TextView
+            android:id="@+id/text"
+            android:layout_width="0dp"
+            android:text="@{comment.comment}"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="0dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintLeft_toLeftOf="@+id/userName"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/userName"
+            tools:text="贷记卡好的哈空间发动机客户反馈萨福克九点十分的撒考几分灰色空间阿富汗都是客户范德萨疯狂基地萨科减肥的手机卡发货快打卡机大家看法尽快回复的开始发空间啊是否就看到撒艰苦奋斗撒疯狂基地撒后付款很大声开发开发很快就阿海珐萨哈夫"/>
+
+        <ImageView
+            android:id="@+id/image"
+            android:visibility="@{TextUtils.isEmpty(comment.imageUrl)? View.GONE : View.VISIBLE}"
+            app:glideUrl="@{comment.imageUrl}"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="50dp"
+            android:minWidth="50dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/text"
+            tools:src="@mipmap/ic_launcher"/>
+    </android.support.constraint.ConstraintLayout>
+</layout>
