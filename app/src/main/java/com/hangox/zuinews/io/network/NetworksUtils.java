@@ -1,6 +1,8 @@
 package com.hangox.zuinews.io.network;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -37,10 +39,10 @@ public class NetworksUtils {
      * @param context
      * @return
      */
-    public static boolean isNetworkup(Context context) {
-//        ConnectivityManager cm =
-//                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-//        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+    public static boolean isNetworkUp(Context context) {
+        ConnectivityManager cm =
+                (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
 //        return networkInfo != null && networkInfo.isConnectedOrConnecting();
         return false;
     }
