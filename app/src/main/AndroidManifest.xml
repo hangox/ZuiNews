@@ -26,7 +26,8 @@
             android:name=".ui.NewDetailActivity"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
-        <activity android:name=".ui.CommentListActivity">
+        <activity android:name=".ui.CommentListActivity"
+            android:label="@string/activity_label_comment_list">
         </activity>
     </application>
 
