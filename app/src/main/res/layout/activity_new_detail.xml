@@ -44,7 +44,7 @@
 
                 <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="140dp"
+                    android:layout_height="180dp"
                     android:layout_gravity="bottom"
                     android:background="@drawable/bg_title_shadow"
                     android:paddingBottom="16dp"
