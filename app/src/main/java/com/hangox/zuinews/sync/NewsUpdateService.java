@@ -1,4 +1,4 @@
-package com.hangox.zuinews.data;
+package com.hangox.zuinews.sync;
 
 import android.app.Service;
 import android.content.Intent;
@@ -27,9 +27,8 @@ import io.reactivex.schedulers.Schedulers;
 
 public class NewsUpdateService extends Service {
 
-    public static final String ACTION_UPDATE_ALL = BuildConfig.APPLICATION_ID + ".UPDATE_ALL_NEWS";
-    public static final String ACTION_UPDATE_SINGLE_CHANNLE = BuildConfig.APPLICATION_ID + ".UPDATE_SINGLE_CHANNEL";
-    public static final String EXTRA_CHANNEL_ID = "exChannelId";
+    public static final String ACTION_UPDATE = BuildConfig.APPLICATION_ID + ".UPDATE";
+    public static final String ACTION_STOP = BuildConfig.APPLICATION_ID + ".STOP";
 
     @Nullable
     @Override
@@ -40,7 +39,7 @@ public class NewsUpdateService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null) {
-            if (ACTION_UPDATE_ALL.equals(intent.getAction())) {
+            if (ACTION_UPDATE.equals(intent.getAction())) {
                 startUpdateDatas();
             }
         }

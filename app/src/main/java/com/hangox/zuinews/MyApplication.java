@@ -16,6 +16,7 @@ import timber.log.Timber;
  */
 
 public class MyApplication extends Application {
+    private static final int JOB_ID = BuildConfig.APPLICATION_ID.hashCode();
     @Override
     public void onCreate() {
         super.onCreate();
@@ -23,5 +24,7 @@ public class MyApplication extends Application {
         Stetho.initializeWithDefaults(this);
         RequestManager.I.init(this);
         Timber.plant(new Timber.DebugTree());
+//        new JobInfo.Builder(JOB_ID, new ComponentName(this,SyncJobService.class))
+//                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY);
     }
 }
