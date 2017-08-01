@@ -28,6 +28,20 @@
         </activity>
         <activity android:name=".ui.CommentListActivity">
         </activity>
+
+        <service android:name=".sync.NewsUpdateService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="${applicationId}.UPDATE"/>
+                <action android:name="${applicationId}.STOP"/>
+            </intent-filter>
+        </service>
+
+        <service android:name=".sync.SyncJobService"
+                 android:enabled="true"
+                 android:exported="false"
+                 android:permission="android.permission.BIND_JOB_SERVICE"/>
+        
     </application>
 
 </manifest>
