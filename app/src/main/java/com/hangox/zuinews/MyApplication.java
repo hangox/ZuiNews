@@ -22,8 +22,8 @@ import timber.log.Timber;
 public class MyApplication extends Application {
     private static final int JOB_ID = BuildConfig.APPLICATION_ID.hashCode();
     //一个小时
-//    public static final int SYNC_PERIOD = 1 * 60 * 60* 1000;
-    public static final int SYNC_PERIOD = 1 * 60* 1000;
+    public static final int SYNC_PERIOD = 1 * 60 * 60* 1000;
+//    public static final int SYNC_PERIOD = 1 * 60* 1000;
 
     private static final int INITIAL_BACKOFF = 10000;
     @Override
