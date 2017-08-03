@@ -4,8 +4,6 @@ import android.databinding.BindingAdapter;
 import android.graphics.drawable.Drawable;
 import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.Target;
 import com.hangox.zuinews.R;
 
 /**
@@ -30,15 +28,11 @@ public class MyViewAdapter {
             placeHolder = view.getContext().getResources().getDrawable(R.drawable.ic_img_loading);
         }
 
-//        GlideApp.with(view.getContext())
-//                .load(imageUrl)
-//                .placeholder(placeHolder)
-//                .error(errorDrawable);
-//
-        Target<Drawable> target = Glide.with(view.getContext())
+        GlideApp.with(view.getContext())
                 .load(imageUrl)
+                .placeholder(placeHolder)
+                .error(errorDrawable)
+                .fallback(R.drawable.ic_fallback)
                 .into(view);
-        target.onLoadFailed(errorDrawable);
-        target.onLoadStarted(placeHolder);
     }
 }

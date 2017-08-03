@@ -60,7 +60,7 @@ public class NewDetailActivity extends BindingActivity<ActivityNewDetailBinding>
             }
         });
 
-        getWindow().setStatusBarColor(Color.TRANSPARENT);
+        getWindow().setStatusBarColor(0x33000000);
 
         mDataBinding.appBar.addOnOffsetChangedListener((appBarLayout, verticalOffset) -> {
             int titleBarHeight = getStateBarHeight();
@@ -115,34 +115,38 @@ public class NewDetailActivity extends BindingActivity<ActivityNewDetailBinding>
     }
 
     public void setUpData(NewsEntity data) {
-        Observable
-                .create((ObservableOnSubscribe<Spanned>) e -> {
-                    Spanned spanned = Html.fromHtml(data.getContentHtml(), source -> {
+        if(TextUtils.isEmpty(data.getContentHtml())){
+            mDataBinding.content.setText(data.getDesc());
+        }else {
+            Observable
+                    .create((ObservableOnSubscribe<Spanned>) e -> {
+                        Spanned spanned = Html.fromHtml(data.getContentHtml(), source -> {
 
-                        try {
-                            if (source.equals(data.getImageUrl())) {
-                                Drawable drawable = new ColorDrawable(Color.TRANSPARENT);
+                            try {
+                                if (source.equals(data.getImageUrl())) {
+                                    Drawable drawable = new ColorDrawable(Color.TRANSPARENT);
+                                    return drawable;
+                                }
+                                BitmapDrawable drawable = (BitmapDrawable) GlideApp.with(NewDetailActivity.this)
+                                        .load(source).into((int) mContentWidth, (int) mContentWidth).get();
+                                Bitmap bitmap = drawable.getBitmap();
+                                int height = (int) (mContentWidth / bitmap.getWidth() * bitmap.getHeight());
+                                drawable.setBounds(0, 0, (int) mContentWidth, height);
+                                return drawable;
+                            } catch (InterruptedException | ExecutionException e1) {
+                                e1.printStackTrace();
+                                Drawable drawable = getResources().getDrawable(R.drawable.ic_img_loading);
+                                int height = (int) (mContentWidth / drawable.getIntrinsicWidth() * drawable.getIntrinsicHeight());
+                                drawable.setBounds(0, 0, (int) mContentWidth, height);
                                 return drawable;
                             }
-                            BitmapDrawable drawable = (BitmapDrawable) GlideApp.with(NewDetailActivity.this)
-                                    .load(source).into((int) mContentWidth, (int) mContentWidth).get();
-                            Bitmap bitmap = drawable.getBitmap();
-                            int height = (int) (mContentWidth / bitmap.getWidth() * bitmap.getHeight());
-                            drawable.setBounds(0, 0, (int) mContentWidth, height);
-                            return drawable;
-                        } catch (InterruptedException | ExecutionException e1) {
-                            e1.printStackTrace();
-                            Drawable drawable = getResources().getDrawable(R.drawable.ic_img_loading);
-                            int height = (int) (mContentWidth / drawable.getIntrinsicWidth() * drawable.getIntrinsicHeight());
-                            drawable.setBounds(0, 0, (int) mContentWidth, height);
-                            return drawable;
-                        }
-                    }, null);
-                    e.onNext(spanned);
-                    e.onComplete();
-                }).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(spannable -> mDataBinding.content.setText(spannable), Throwable::printStackTrace);
+                        }, null);
+                        e.onNext(spanned);
+                        e.onComplete();
+                    }).subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(spannable -> mDataBinding.content.setText(spannable), Throwable::printStackTrace);
+        }
 
         Drawable colorBigPicture = new ColorDrawable(getResources().getColor(R.color.colorPrimary));
         if (TextUtils.isEmpty(data.getImageUrl())) {
@@ -150,14 +154,18 @@ public class NewDetailActivity extends BindingActivity<ActivityNewDetailBinding>
         } else {
             GlideApp.with(this)
                     .load(data.getImageUrl())
+                    .placeholder(R.drawable.ic_img_loading)
+                    .error(R.drawable.ic_loading_failure)
+                    .fallback(R.drawable.ic_fallback)
                     .into(mDataBinding.bigPicture)
                     .onLoadFailed(colorBigPicture);
         }
-
 
         mDataBinding.title.setText(data.getTitle());
         mDataBinding.time.setText(data.getDate());
         mDataBinding.source.setText(data.getSource());
     }
+
+
 }
 

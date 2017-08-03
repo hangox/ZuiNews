@@ -5,16 +5,17 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 
-import com.hangox.xlog.XLog;
 import com.hangox.zuinews.BuildConfig;
+import com.hangox.zuinews.data.NewsData;
 import com.hangox.zuinews.io.Db;
-import com.hangox.zuinews.io.bean.ChannelApiBean;
-import com.hangox.zuinews.io.bean.ChannelBean;
+import com.hangox.zuinews.io.bean.NewsContentBean;
+import com.hangox.zuinews.io.bean.NewsPageBean;
 import com.hangox.zuinews.io.entry.ChannelEntity;
-import com.hangox.zuinews.io.network.NewsApi;
+import com.hangox.zuinews.io.entry.NewsEntity;
+import com.hangox.zuinews.io.network.NetworksUtils;
+import com.hangox.zuinews.io.network.RequestManager;
 
-import java.util.List;
-
+import hugo.weaving.DebugLog;
 import io.reactivex.schedulers.Schedulers;
 
 
@@ -30,44 +31,54 @@ public class NewsUpdateService extends Service {
     public static final String ACTION_UPDATE = BuildConfig.APPLICATION_ID + ".UPDATE";
     public static final String ACTION_STOP = BuildConfig.APPLICATION_ID + ".STOP";
 
+    private NewsData data = new NewsData();
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
 
+
+    @DebugLog
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null) {
             if (ACTION_UPDATE.equals(intent.getAction())) {
-                startUpdateDatas();
+                if(NetworksUtils.isNetworkUp(this)) {
+                    startUpdateDatas();
+                }
             }
         }
         return super.onStartCommand(intent, flags, startId);
     }
 
     private void startUpdateDatas() {
-        NewsApi.requestNewsChannel(null)
-                .observeOn(Schedulers.io())
-                .subscribe(channelApiBean -> {
-                    ChannelApiBean.ShowapiResBodyBean bodyBean = channelApiBean.getShowApiResBody();
-                    Db.session().getChannelEntityDao().deleteAll();
-                    List<ChannelBean> list = bodyBean.getChannelList();
-                    XLog.v("update channel list size " + list.size());
-                    for (ChannelBean channelBean : list) {
-                        XLog.v("channel " + channelBean);
-                        Db.session().getChannelEntityDao().insert(new ChannelEntity(channelBean));
+        Db.session().getChannelEntityDao()
+                .queryBuilder()
+                .rx()
+                .list()
+                .subscribe(channelEntities -> {
+                    for (ChannelEntity channelEntity : channelEntities) {
+                        //只要同步200条就好了，再多就无用了
+                        data.requestNewsList(channelEntity.getChannelId(), 1, 200, true, NewsUpdateService.this)
+                                .map(NewsPageBean::getContentlist)
+                                .observeOn(Schedulers.io())
+                                .doOnNext(newsContentBeen -> {
+                                    for (NewsContentBean newsContentBean : newsContentBeen) {
+                                        Db.session().insertOrReplace(new NewsEntity(newsContentBean));
+                                    }
+                                }).subscribe(newsContentBeen -> {}, Throwable::printStackTrace);
                     }
-                }, Throwable::printStackTrace);
+                });
+
 
     }
 
-//
-//    private void startUpdateChannel(String channelId, int page) {
-//        NewsApi.requestNewsList(channelId, page, null)
-//                .subscribe(newsApiBean -> {
-//                     list = newsApiBean.getShowApiResBody().getPagebean();
-//                }, Throwable::printStackTrace);
-//    }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        RequestManager.Q().cancelAll(this);
+    }
 }
