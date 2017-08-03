@@ -3,6 +3,12 @@ apply plugin: 'com.jakewharton.hugo'
 apply plugin: 'org.greenrobot.greendao'
 apply plugin: 'me.tatarka.retrolambda'
 
+//读取local.properties 信息
+Properties properties = new Properties()
+InputStream inputStream = project.rootProject.file('local.properties').newDataInputStream();
+properties.load(inputStream)
+def showAppId = properties.getProperty('SHOW_APP_ID')
+def showAppSecret = properties.getProperty('SHOW_APP_SECRET')
 
 android {
     useLibrary 'org.apache.http.legacy'
@@ -16,6 +22,8 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        buildConfigField "String", "SHOW_APP_ID", "\"${showAppId}\""
+        buildConfigField "String", "SHOW_APP_SECRET", "\"${showAppSecret}\""
     }
     buildTypes {
         release {
