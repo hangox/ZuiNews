@@ -6,6 +6,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.util.ArrayMap;
 
 import com.hangox.zuinews.R;
 import com.hangox.zuinews.data.NewsData;
@@ -29,6 +30,7 @@ public class MainActivity extends MyActivity<ActivityMainBinding> {
 
     NewsData mNewsData;
     private NewsListAdapter mAdapter;
+    private ArrayMap<Integer,NewsListFragment> mFragmentArrayMap = new ArrayMap<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -82,13 +84,16 @@ public class MainActivity extends MyActivity<ActivityMainBinding> {
 
         @Override
         public Fragment getItem(int position) {
-            ChannelEntity entity = mChannelEntities.get(position);
-            return NewsListFragment.newInstance(entity.getName(), entity.getChannelId());
+            if(!mFragmentArrayMap.containsKey(position)){
+                ChannelEntity entity = mChannelEntities.get(position);
+                mFragmentArrayMap.put(position,NewsListFragment.newInstance(entity.getName(), entity.getChannelId()));
+            }
+            return mFragmentArrayMap.get(position);
         }
 
         @Override
         public int getCount() {
-            return 1;
+            return mChannelEntities.size();
         }
     }
 

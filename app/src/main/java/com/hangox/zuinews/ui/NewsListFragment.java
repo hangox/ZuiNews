@@ -1,5 +1,6 @@
 package com.hangox.zuinews.ui;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
@@ -76,13 +77,18 @@ public class NewsListFragment extends MyFragment<FraNewListBinding> {
     }
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onAttach(Context context) {
+        super.onAttach(context);
         mNewsData = new NewsData();
-
         Bundle args = getArguments();
         mChannelId = args.getString("channelId", "");
         mChannelName = args.getString("channelName", "");
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
     }
 
     @Override
@@ -106,7 +112,20 @@ public class NewsListFragment extends MyFragment<FraNewListBinding> {
         mBinding.swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorAccent));
 
         isNetworkUp = NetworksUtils.isNetworkUp(getContext());
-        requestFirstPage();
+
+        Timber.d("isVisibleHint %s ", getUserVisibleHint());
+        if(getUserVisibleHint()){
+            requestFirstPage();
+        }
+    }
+
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if(isVisibleToUser && getView() != null && mNewsEntities.isEmpty()){
+            requestFirstPage();
+        }
     }
 
     private void requestFirstPage() {
