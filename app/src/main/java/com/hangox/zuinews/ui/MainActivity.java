@@ -7,12 +7,15 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.util.ArrayMap;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import com.hangox.zuinews.R;
 import com.hangox.zuinews.data.NewsData;
 import com.hangox.zuinews.databinding.ActivityMainBinding;
 import com.hangox.zuinews.io.entry.ChannelEntity;
 import com.hangox.zuinews.io.network.NetworksUtils;
+import com.tencent.bugly.beta.Beta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +48,7 @@ public class MainActivity extends MyActivity<ActivityMainBinding> {
                     .setAction(android.R.string.ok, v -> {})
                     .show();
         }
+        setSupportActionBar(mDataBinding.toolbar);
 
     }
 
@@ -59,6 +63,24 @@ public class MainActivity extends MyActivity<ActivityMainBinding> {
         mDataBinding.viewPager.setOffscreenPageLimit(mAdapter.getCount());
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main,menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == R.id.checkUpdate){
+            checkUpdate();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void checkUpdate() {
+        Beta.checkUpgrade(true,false);
+    }
 
     @Override
     protected int provideLayoutId() {

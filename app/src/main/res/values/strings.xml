@@ -9,4 +9,5 @@
     <string name="net_error_server">服务器错误</string>
     <string name="net_error_timeout">访问超时，请重试</string>
     <string name="net_error_un_know">未知错误</string>
+    <string name="check_update">检查更新</string>
 </resources>
