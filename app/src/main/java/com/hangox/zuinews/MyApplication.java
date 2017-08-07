@@ -9,6 +9,7 @@ import com.facebook.stetho.Stetho;
 import com.hangox.zuinews.io.Db;
 import com.hangox.zuinews.io.network.RequestManager;
 import com.hangox.zuinews.sync.SyncJobService;
+import com.tencent.bugly.Bugly;
 
 import timber.log.Timber;
 
@@ -33,8 +34,8 @@ public class MyApplication extends Application {
         Stetho.initializeWithDefaults(this);
         RequestManager.I.init(this);
         Timber.plant(new Timber.DebugTree());
-
         createSyncJob();
+        Bugly.init(getApplicationContext(), BuildConfig.BUGLY_ID, false);
     }
 
     private void createSyncJob() {
@@ -45,5 +46,6 @@ public class MyApplication extends Application {
                 .setBackoffCriteria(INITIAL_BACKOFF, JobInfo.BACKOFF_POLICY_EXPONENTIAL);
         JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
         scheduler.schedule(builder.build());
+
     }
 }

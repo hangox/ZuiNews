@@ -9,6 +9,7 @@ InputStream inputStream = project.rootProject.file('local.properties').newDataIn
 properties.load(inputStream)
 def showAppId = properties.getProperty('SHOW_APP_ID')
 def showAppSecret = properties.getProperty('SHOW_APP_SECRET')
+def buglyId = properties.getProperty("BUGLY_ID")
 
 android {
     useLibrary 'org.apache.http.legacy'
@@ -24,6 +25,12 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         buildConfigField "String", "SHOW_APP_ID", "\"${showAppId}\""
         buildConfigField "String", "SHOW_APP_SECRET", "\"${showAppSecret}\""
+        buildConfigField "String", "BUGLY_ID", "\"${buglyId}\""
+
+        ndk {
+            //设置支持的SO库架构
+            abiFilters 'armeabi' //, 'x86', 'armeabi-v7a', 'x86_64', 'arm64-v8a'
+        }
     }
     buildTypes {
         release {
@@ -77,4 +84,6 @@ dependencies {
     compile 'com.facebook.stetho:stetho-okhttp3:1.5.0'
     testCompile 'junit:junit:4.12'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.0.0-RC1'
+    compile 'com.tencent.bugly:crashreport_upgrade:latest.release'//其中latest.release指代最新版本号，也可以指定明确的版本号，例如1.2.0
+    compile 'com.tencent.bugly:nativecrashreport:latest.release' //其中latest.release指代最新版本号，也可以指定明确的版本号，例如2.2.0
 }
