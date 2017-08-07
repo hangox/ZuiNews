@@ -6,4 +6,6 @@
 
 SHOW_APP_ID=你的AppId
 
-SHOW_APP_SECRET=你的AppSecret 
+SHOW_APP_SECRET=你的AppSecret
+
+BUGLY_ID=你的buglyid
