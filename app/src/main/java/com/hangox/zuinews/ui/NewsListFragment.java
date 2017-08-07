@@ -16,6 +16,7 @@ import com.hangox.databinding.recycleview.BindingRecyclerAdapter;
 import com.hangox.databinding.recycleview.BindingViewHolder;
 import com.hangox.more.recycerview.MoreDelegate;
 import com.hangox.more.recycerview.MoreDelegateImp;
+import com.hangox.xlog.XLog;
 import com.hangox.zuinews.R;
 import com.hangox.zuinews.data.NewsData;
 import com.hangox.zuinews.databinding.FraNewListBinding;
@@ -107,14 +108,14 @@ public class NewsListFragment extends MyFragment<FraNewListBinding> {
         DividerItemDecoration itemDecoration = new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
         itemDecoration.setDrawable(getResources().getDrawable(R.drawable.ic_divide_line));
         mBinding.recyclerView.addItemDecoration(itemDecoration);
-        mBinding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL,false));
+        mBinding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
         mBinding.swipeRefreshLayout.setOnRefreshListener(this::requestFirstPage);
         mBinding.swipeRefreshLayout.setColorSchemeColors(getResources().getColor(R.color.colorAccent));
 
         isNetworkUp = NetworksUtils.isNetworkUp(getContext());
 
         Timber.d("isVisibleHint %s ", getUserVisibleHint());
-        if(getUserVisibleHint()){
+        if (getUserVisibleHint()) {
             requestFirstPage();
         }
     }
@@ -123,7 +124,7 @@ public class NewsListFragment extends MyFragment<FraNewListBinding> {
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
-        if(isVisibleToUser && getView() != null && mNewsEntities.isEmpty()){
+        if (isVisibleToUser && getView() != null && mNewsEntities.isEmpty()) {
             requestFirstPage();
         }
     }
@@ -146,7 +147,8 @@ public class NewsListFragment extends MyFragment<FraNewListBinding> {
                         }
                         return entities;
                     })
-                    .observeOn(AndroidSchedulers.mainThread());
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnError(NetworksUtils.createOnVolleyNetworkHandler(getContext()));
         } else {
             observable = Db.session()
                     .getNewsEntityDao()
@@ -174,6 +176,7 @@ public class NewsListFragment extends MyFragment<FraNewListBinding> {
                 Snackbar.make(mBinding.constraintLayout, showApiError.getMessage(), Snackbar.LENGTH_LONG)
                         .show();
             }
+            mBinding.swipeRefreshLayout.setRefreshing(false);
         }, () -> {
 
         });
@@ -209,7 +212,9 @@ public class NewsListFragment extends MyFragment<FraNewListBinding> {
                         }
                         return entities;
                     })
-                    .observeOn(AndroidSchedulers.mainThread());
+                    .doOnError(XLog::e)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnError(NetworksUtils.createOnVolleyNetworkHandler(getContext()));
         } else {
             QueryBuilder<NewsEntity> queryBuilder = Db.session().getNewsEntityDao().queryBuilder()
                     .where(NewsEntityDao.Properties.ChannelId.eq(mChannelId))
@@ -241,6 +246,7 @@ public class NewsListFragment extends MyFragment<FraNewListBinding> {
             mBinding.recyclerView.getMoreDelegete().setViewState(MoreDelegate.ViewState.ERROR);
             mBinding.recyclerView.unlockMoreCall();
         }, () -> {
+
         });
 
     }
@@ -301,8 +307,8 @@ public class NewsListFragment extends MyFragment<FraNewListBinding> {
 
         @Override
         public void onRootViewClick(View rootView, int index) {
-            Intent intent = new Intent(getContext(),NewDetailActivity.class);
-            intent.putExtra("news",mNewsEntities.get(index));
+            Intent intent = new Intent(getContext(), NewDetailActivity.class);
+            intent.putExtra("news", mNewsEntities.get(index));
             startActivity(intent);
         }
     }

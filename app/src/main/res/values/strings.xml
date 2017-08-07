@@ -3,4 +3,10 @@
     <string name="no_connection_show_cache">无网络连接，将为你显示缓存</string>
     <string name="read_more">更多评论</string>
     <string name="activity_label_comment_list">评论</string>
+
+    <string name="net_error_network">网络错误</string>
+    <string name="net_error_no_connection">无网络连接，请检查网络</string>
+    <string name="net_error_server">服务器错误</string>
+    <string name="net_error_timeout">访问超时，请重试</string>
+    <string name="net_error_un_know">未知错误</string>
 </resources>
